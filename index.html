@@ -2246,6 +2246,12 @@
             max-width: 80%;
             animation: fadeInGlow 2s ease-in-out;
             border: 2px solid var(--flower-color);
+            opacity: 1;
+            transition: opacity 2s ease-out 3s; /* Desaparece después de 3s */
+        }
+
+        .message.hidden {
+            opacity: 0;
         }
 
         .message.error {
@@ -2697,7 +2703,13 @@
             'rojo': '#ff0000',
             'azul': '#0000ff',
             'verde': '#008000',
-            'amarillo': '#ffff00'
+            'amarillo': '#ffff00',
+            'rosa': '#FF69B4',
+            'morado': '#800080',
+            'naranja': '#FFA500',
+            'blanco': '#FFFFFF',
+            'lila': '#C8A2C8',
+            'turquesa': '#40E0D0'
         };
 
         const mensajeDiv = document.getElementById('mensaje');
@@ -2717,28 +2729,36 @@
                 const snapshot = await get(linkRef);
                 if (snapshot.exists()) {
                     const data = snapshot.val();
-                    const color = data.color;
+                    let color = data.color;
                     const nombre = data.nombre;
 
-                    if (!color || !nombre || !colorMap[color]) {
+                    if (!color || !nombre) {
                         throw new Error('Datos inválidos');
                     }
 
+                    // Si es un color predefinido, usa el map; si es hex custom, usa directamente
+                    const hexColor = colorMap[color.toLowerCase()] || (color.startsWith('#') ? color : '#e6f331');
+
                     // Actualizar colores
-                    const hexColor = colorMap[color];
                     document.documentElement.style.setProperty('--flower-color', hexColor);
                     document.documentElement.style.setProperty('--flower-secondary', adjustColor(hexColor, 20));
                     document.documentElement.style.setProperty('--flower-center-from', hexColor);
                     document.documentElement.style.setProperty('--flower-center-to', adjustColor(hexColor, -20));
 
-                    // Mostrar mensaje bonito
+                    // Mostrar mensaje bonito al inicio
                     mensajeDiv.innerHTML = `🌸 ¡Esto es para ti, <span style="color: var(--flower-color); font-weight: bold;">${nombre}</span>! 💖 🌸`;
                     mensajeDiv.className = 'message success';
 
-                    // Iniciar animaciones después de un breve delay para efecto
+                    // Iniciar animaciones
+                    document.body.classList.remove("container");
+
+                    // Desaparecer mensaje después de 5 segundos
                     setTimeout(() => {
-                        document.body.classList.remove("container");
-                    }, 1000); // Delay para que el mensaje se vea primero
+                        mensajeDiv.style.opacity = '0';
+                        setTimeout(() => {
+                            mensajeDiv.style.display = 'none';
+                        }, 2000); // Tiempo de transición
+                    }, 5000);
                 } else {
                     throw new Error('ID no encontrado');
                 }
